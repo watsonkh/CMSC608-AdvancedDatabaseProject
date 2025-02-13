@@ -9,9 +9,15 @@ authors:
 We are building a recipe database, what should the users be able to do?
 
 1. **Users** may lookup **recipes** by **ingredient**.
-2. **Users** may filter **recipes** by **dietary restriction**.
+2. **Users** may filter **recipes** by:
 
+    * dietary restrictions/preferences
+    * estimated duration of cooking time
+    * estimated cost of meal per serving
+    * estimated calories per serving
+    * serving size
+    * type of cuisine (italian, vietnamese, indian, ... )
+    * required kitchen tools (e.g., a stand mixer)
 
-
-
-
+3. **Users** may input a list of the **ingredients** they currently have and retrieve **recipes** ranked by most similar ingredient lists.
+4. **Users** may input an image of the **dish** they want to make and retrieve **recipes** with similar image thumbnails.
