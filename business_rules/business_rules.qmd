@@ -1,0 +1,17 @@
+---
+title: "Business Rules"
+authors:
+  - name: Paula Gearon
+  - name: Luke Unterman
+  - name: Kyle Watson
+---
+
+We are building a recipe database, what should the users be able to do?
+
+1. **Users** may lookup **recipes** by **ingredient**.
+2. **Users** may filter **recipes** by **dietary restriction**.
+
+
+
+
+
