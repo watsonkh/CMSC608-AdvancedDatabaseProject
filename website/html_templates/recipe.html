@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .recipe-image {
+            width: 100%;
+            height: 300px;
+            background-color: #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .recipe-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+        }
+        .description {
+            margin: 10px 0 20px;
+        }
+        .ingredients, .steps {
+            margin-top: 20px;
+        }
+        .ingredients ul, .steps ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recipe Title</h1>
+        <p class="description">This is a brief description of the recipe, including its origin, flavor profile, or any interesting facts.</p>
+        
+        <section class="recipe-image">
+            <!-- Replace 'placeholder.jpg' with the actual image URL if available -->
+            <img src="placeholder.jpg" alt="Recipe Image Placeholder">
+        </section>
+
+        <section class="ingredients">
+            <h2>Ingredients</h2>
+            <ul>
+                <li>1 cup of flour</li>
+                <li>2 eggs</li>
+                <li>1/2 cup of sugar</li>
+                <li>1 teaspoon of vanilla extract</li>
+                <li>1/4 cup of milk</li>
+            </ul>
+        </section>
+        
+        <section class="steps">
+            <h2>Steps</h2>
+            <ol>
+                <li>Preheat the oven to 350°F (175°C).</li>
+                <li>Mix the flour and sugar in a bowl.</li>
+                <li>Add the eggs, vanilla extract, and milk. Stir until smooth.</li>
+                <li>Pour the mixture into a greased baking dish.</li>
+                <li>Bake for 25-30 minutes or until golden brown.</li>
+                <li>Let it cool before serving. Enjoy!</li>
+            </ol>
+        </section>
+    </div>
+</body>
+</html>

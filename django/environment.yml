@@ -1,0 +1,19 @@
+name: cmsc-608-website
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+  - python
+  - anaconda::django
+  - conda-forge::psycopg2
+pip:
+  - legacy-cgi
+  # - anaconda::django-ninja
+  # - anaconda::django-extensions
+  # - anaconda::django-debug-toolbar
+  # - anaconda::django-cors-headers
+  # - anaconda::djangorestframework
+  # - anaconda::djangorestframework-simplejwt
+
+
