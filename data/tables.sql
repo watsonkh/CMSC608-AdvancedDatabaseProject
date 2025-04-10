@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS recipe_ingredient (
   displayOrder INT NOT NULL,
   unit BIGINT NOT NULL,
   quantity NUMERIC NOT NULL,
+  denominator INT,
   FOREIGN KEY (recipeId) REFERENCES recipe(id),
   FOREIGN KEY (ingredientId) REFERENCES ingredient(id),
   FOREIGN KEY (unit) REFERENCES unit(id));
