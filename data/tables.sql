@@ -43,8 +43,7 @@ CREATE TABLE IF NOT EXISTS recipe (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
-  servingsMin INT NOT NULL,
-  servingsMax INT NOT NULL,
+  servings VARCHAR NOT NULL,
   mainImage TEXT,
   source TEXT);
 
