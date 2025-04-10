@@ -1,14 +1,16 @@
+CREATE TYPE unit_type AS ENUM ('volume', 'mass', 'count', 'length', 'area');
+
 CREATE TABLE IF NOT EXISTS unit (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  unitType ENUM('volume', 'mass', 'count', 'length', 'area') NOT NULLi,
+  unitType unit_type NOT NULL,
   notation TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS unit_conversion (
   id SERIAL PRIMARY KEY,
   fromUnit BIGINT NOT NULL,
   toUnit BIGINT NOT NULL,
-  ratio NUMERIC NOT NULL
+  ratio NUMERIC NOT NULL,
   FOREIGN KEY (fromUnit) REFERENCES unit(id),
   FOREIGN KEY (toUnit) REFERENCES unit(id));
 
