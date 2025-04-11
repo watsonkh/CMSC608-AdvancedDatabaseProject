@@ -20,6 +20,7 @@ INSERT into unit (name, unitType, notation) VALUES
   ('yard', 'length', 'yd'),
   ('mile', 'length', 'mi'),
   ('14-ounce can', 'count', '14oz can'),
+  ('28-ounce can', 'count', '28oz can'),
   ('clove', 'count', 'clove'),
   ('knob', 'count', 'knob'),
   ('handful', 'count', 'handful'),
@@ -28,7 +29,22 @@ INSERT into unit (name, unitType, notation) VALUES
   ('sprig', 'count', 'sprig'),
   ('whole', 'count', 'whole'),
   ('bunch', 'count', 'bunch'),
-  ('slice', 'count', 'slice');
+  ('slice', 'count', 'slice'),
+  ('piece', 'count', 'piece'),
+  ('stick', 'count', 'stick'),
+  ('stalk', 'count', 'stalk'),
+  ('pinch', 'count', 'pinch'),
+  ('ear', 'count', 'ear'),
+  ('head', 'count', 'head'),
+  ('bulb', 'count', 'bulb'),
+  ('quart jar', 'count', 'quart jar'),
+  ('can', 'count', 'can'),
+  ('package', 'count', 'pkg'),
+  ('box', 'count', 'box'),
+  ('pouch', 'count', 'pouch'),
+  ('packet', 'count', 'pkt'),
+  ('recipe', 'count', 'recipe'),
+  ('', 'use', '');
 
 INSERT into unit_conversion (fromUnit, toUnit, ratio) VALUES
   ((SELECT id FROM unit WHERE notation = 'tsp'), (SELECT id FROM unit WHERE notation = 'ml'), 5),           -- 1 tsp = 5 mL

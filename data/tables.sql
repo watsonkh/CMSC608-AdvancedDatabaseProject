@@ -1,4 +1,5 @@
-CREATE TYPE unit_type AS ENUM ('volume', 'mass', 'count', 'length', 'area');
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE TYPE unit_type AS ENUM ('volume', 'mass', 'count', 'length', 'area', 'use');
 
 CREATE TABLE IF NOT EXISTS unit (
   id SERIAL PRIMARY KEY,

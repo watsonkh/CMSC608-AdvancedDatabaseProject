@@ -10,6 +10,43 @@ default_output = "output.sql"
 def esc(s):
     return s.replace("'", "''")
 
+def singularize(s):
+    if s.endswith('s'):
+        if s.endswith('tomatoes'):
+            return s.replace('tomatoes', 'tomato')
+        if s.endswith('potatoes'):
+            return s.replace('potatoes', 'potato')
+        return s[:-1]
+    return s
+
+def replace_unicode(text):
+    replacements = {"½": "1/2", "⅓": "1/3", "¼": "1/4"}
+    for unicode_char, ascii_str in replacements.items():
+        text = text.replace(unicode_char, ascii_str)
+    return text
+
+def fudge(food, quantity, unit):
+    """
+    Fudge the food name, quantity, and unit based on some specific rules.
+    """
+    if quantity == "" and unit == "":
+        return food, 1, ""
+    if food == "thyme sprig":
+        return "thyme", 3, "sprig"
+    if m := re.search(r"\d+( to |-)(\d+)", quantity):
+        return food, m.group(2), unit
+    if unit == "6-inch piece":
+        return food, 6, "inch"
+    if quantity == "Pinch":
+        return food, 1, "pinch"
+    if quantity == "8-10":
+        return food, 10, ""
+    if food == "evaporated milk":
+        return food, 1, "can"
+    if quantity == "One 3-pound":
+        return food, 3, "pound"
+    raise ValueError(f"Unknown food: {food}, quantity: {quantity}, unit: {unit}")
+
 def load_file(file_path):
     """
     Load a JSONL file and return its content as a list of dictionaries.
@@ -18,34 +55,53 @@ def load_file(file_path):
         data = [json.loads(line) for line in file]
     return data
 
+conversions = {
+        "large": "",
+        "14-ounce": "ounce",
+        "12-ounce": "ounce",
+        "dashe": "dash",
+        "each": "",
+        "pepper": "",
+        "scallion": "",
+        "small": "",
+        "medium": ""}
+sizes = { "large", "small", "medium" }
+
+def convert(food, unit):
+    unit = singularize(unit).lower()
+    if unit in conversions:
+        unit = conversions[unit]
+        if unit in sizes:
+            food = unit + " " + food
+    if re.search(r"^quart ", food):
+        food = re.sub(r"^quart ", "", food)
+        unit = "quart"
+    return food, unit
+
 def get_ingredients(data):
     # strip out all ingredients: these are "ingredients_decomposed" for each line
-    food = {}
+    foods = {}
     simple_names = set()
     for recipe in data:
         ingredients = recipe.get("ingredients_decomposed", {})
         for ingredient in ingredients.values():
             if "food" in ingredient:
-                simple_name = ingredient["food"].lower()
+                food = singularize(ingredient["food"])
+                unit = ingredient["unit"]
+                unit = unit.lower()
+                food, unit = convert(food, unit)
+                simple_name = food.lower()
                 if simple_name in simple_names:
-                    if ingredient["food"] in food:
+                    if food in foods:
                         print(f"Duplicate ingredient with different case found: {ingredient['food']}")
                     continue
-                food.setdefault(ingredient["food"], ingredient["unit"])
+                foods.setdefault(food, unit)
     sql = "INSERT INTO ingredient (name, baseUnit) VALUES\n"
     sql_strs = []
-    for ingredient,unit in food.items():
-        unit = unit.lower()
-        if re.search(r"s$", unit):
-            unit = re.sub(r"s$", "", unit)
+    for ingredient,unit in foods.items():
         if ingredient == "unknown":
             continue
-        if re.search(r"^quart ", ingredient):
-            ingredient = re.sub(r"^quart ", "", ingredient)
-            unit = "quart"
-        if unit == "large":
-            unit = ""
-        sql_strs.append(f"  ('{esc(ingredient)}', (SELECT id FROM unit WHERE name = '{unit}'))")
+        sql_strs.append(f"  ('{esc(singularize(ingredient))}', (SELECT id FROM unit WHERE name = '{unit}'))")
     return [sql + ",\n".join(sql_strs) + ";"]
 
 def get_recipes(data):
@@ -60,36 +116,51 @@ def get_recipes(data):
     return [sql + ",\n".join(sql_strs) + ";"]
 
 def get_recipe_ingredients(data):
-    sql_str = f"INSERT INTO recipe_ingredient (recipe_id, ingredient_id, order, unitId, quantity, denominator) VALUES\n"
+    sql_str = f"INSERT INTO recipe_ingredient (recipeId, ingredientId, displayOrder, unit, quantity, denominator) VALUES\n"
     sql_strs = []
     for recipe in data:
         ingredients = recipe.get("ingredients_decomposed", {})
         for order,ingredient in ingredients.items():
-            food = ingredient["food"]
+            food = singularize(ingredient["food"])
             quantity = ingredient["quantity"]
-            unit = ingredient["unit"]
+            unit0 = ingredient["unit"]
+            food, unit = convert(food, unit0)
+            if quantity == "":
+                quantity = "1"
+                if unit != "":
+                    print(f"Warning: ingredient {food} has empty quantity for unit '{unit}': using 1")
+            quantity = replace_unicode(quantity)
             frac = re.search(r"([ 0-9]+)/(\d+)", quantity)
             numerator = ""
             denominator = "NULL"
+            if om := re.search(r"(\d+)-ounce", unit0):
+                if not unit0.endswith(" can"):
+                    numerator = om.group(1)
             if frac:
                 denominator = frac.group(2)
                 num = frac.group(1)
-                m = re.search(r"(\d+) +(\d+)", num)
-                if m:
+                if m := re.search(r"(\d+) +(\d+)", num):
                     a = m.group(1)
                     b = m.group(2)
                     numerator = int(denominator) * int(a) + int(b)
                 else:
                     numerator = num
             else:
-                numerator = quantity
-                denominator = "NULL"
-            sql_strs.append(f"  ((SELECT id FROM recipe WHERE name = '{esc(recipe['name'])}'),\n   (SELECT id FROM ingredient WHERE name = '{esc(food)}'), {order},\n"
+                try:
+                    numerator = int(quantity)
+                except ValueError:
+                    try:
+                        food, numerator, unit = fudge(food, quantity, unit)
+                    except ValueError:
+                        print(f"Error: ingredient {food} has unknown quantity {quantity}, in {recipe['name']}")
+                        raise
+            sql_strs.append(f"  ((SELECT id FROM recipe WHERE name = '{esc(recipe['name'])}'),\n"
+                            f"   (SELECT id FROM ingredient WHERE name = '{esc(food)}'), {order},\n"
                             f"   (SELECT id FROM unit WHERE name = '{unit}'), {numerator}, {denominator})")
     return [sql_str + ",\n".join(sql_strs) + ";"]
 
 def get_steps(data):
-    sql_str = f"INSERT INTO step (recipeId, order, description, image) VALUES\n"
+    sql_str = f"INSERT INTO step (recipeId, displayOrder, description, imageLocation) VALUES\n"
     sql = []
     for recipe in data:
         steps = recipe["steps"]
