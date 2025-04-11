@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if recipe %}
+        <h1>{% block title %} {{ recipe.name }} {% endblock %}</h1>
+        <div class="recipe">
+            <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="256" height="256">
+            <p><strong>Description:</strong> {{ recipe.description }}</p>
+            <p><strong>Servings:</strong> {{ recipe.servings }}</p>
+        </div>
+    {% else %}
+        <h1>Recipe not found</h1>
+    {% endif %}
+{% endblock %}
