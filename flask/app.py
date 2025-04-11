@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
+DEFAULT_DB_PORT = 5432
 
-load_dotenv()
+load_dotenv(override=True)
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -26,6 +27,7 @@ def get_db_connection():
     conn = psycopg2.connect(
         host=os.getenv("HOST"),
         database=os.getenv("DATABASE"),
+        port=os.getenv("PORT", DEFAULT_DB_PORT),
         user=os.getenv("USER"),
         password=os.getenv("PASSWORD")
     )
