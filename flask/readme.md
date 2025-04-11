@@ -16,8 +16,11 @@ Since the `app.py` script relies on using the Python library `psycopg2` to conne
 3. Add a .env file to the flask folder for the `app.py` to read so it can connect to your Postgres DB. I use the following .env format:
 
 HOST=localhost
+
 DATABASE=dbname
+
 USER=username
+
 PASSWORD=password
 
 If I haven't missed anything, you should be able to initialize the Flask instance now. CD to the flask folder and run
