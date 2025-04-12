@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New {{ table_name.capitalize() }}{% endblock %}
+
+{% block content %}
+    <h1>Add New {{ table_name.capitalize() }}</h1>
+    <form method="post">
+        {% for col_info in columns_info if col_info.name != 'id' %} {# Skip 'id' for add form #}
+            <label for="{{ col_info.name }}">{{ col_info.name.capitalize() }}:</label><br>
+            <input type="text" id="{{ col_info.name }}" name="{{ col_info.name }}"><br><br> {# Basic text input for simplicity #}
+        {% endfor %}
+        <input type="submit" value="Add {{ table_name.capitalize() }}">
+    </form>
+{% endblock %}

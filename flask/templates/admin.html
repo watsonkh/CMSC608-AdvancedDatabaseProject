@@ -6,6 +6,8 @@
     <h1>Admin Panel</h1>
     <p>Choose a table to manage:</p>
     <ul>
-        <li><a href="{{ url_for('admin_recipe_list') }}">Recipes</a></li>
+        {% for table in tables %}
+        <li><a href="{{ url_for('admin_list', table_name=table) }}">{{ table.capitalize() }}</a></li>
+        {% endfor %}
     </ul>
 {% endblock %}
