@@ -5,6 +5,9 @@ import psycopg2.extras
 from flask import Flask, render_template, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from PIL import Image
+from embeddings import init_CLIP, create_embedding
+from queries import image_similarity_query
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
@@ -33,7 +36,6 @@ def get_db_connection():
     )
     return conn
 
-
 @app.route('/image_search', methods=['GET', 'POST'])
 def image_search():
     """
@@ -58,10 +60,20 @@ def image_search():
             img_filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             print(f"[DEBUG] Saving file to: {img_filepath}")
             file.save(img_filepath)
-            
+
             # If given filepath is valid image
             if imghdr.what(img_filepath):
-                return render_template('image_result.html', filename=filename)
+                model, processor = init_CLIP()
+                img = Image.open(img_filepath).convert("RGB").resize(size=[256, 256])
+                img_embedding = create_embedding([img], model, processor)[0].tolist()
+                conn = get_db_connection()
+                cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                cur.execute(image_similarity_query, (img_embedding, img_embedding, img_embedding))
+                results = cur.fetchall()
+                print(results)
+                cur.close()
+                conn.close()
+                return render_template('image_result.html', filename=filename, similar_images=results)
             else:
                 os.remove(img_filepath)
                 flash('Uploaded file is not a valid image')
