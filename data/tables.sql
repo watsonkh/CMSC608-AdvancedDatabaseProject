@@ -94,6 +94,10 @@ CREATE TABLE IF NOT EXISTS image (
   id SERIAL PRIMARY KEY,
   recipeId BIGINT NOT NULL,
   imageLocation TEXT NOT NULL,
+  embedding vector(512) NOT NULL,
   UNIQUE (recipeId, imageLocation),
   FOREIGN KEY (recipeId) REFERENCES recipe(id));
 
+CREATE INDEX IF NOT EXISTS hnsw_embedding_idx ON image
+USING hnsw (embedding vector_cosine_ops)
+WITH (m = 16, ef_construction = 64);
