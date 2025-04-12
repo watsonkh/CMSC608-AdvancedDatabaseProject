@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from PIL import Image
 from embeddings import init_CLIP, create_embedding
-from queries import image_similarity_query
+from queries import image_similarity_query, recipe_steps_query
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
@@ -91,20 +91,115 @@ def recipe(id=None):
         return render_template('recipe.html', recipe_id=None)
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute(f"SELECT * FROM recipe WHERE id = {id};")
+    cur.execute(f"SELECT * FROM recipe WHERE id = %s ;", (id,))
     recipe = cur.fetchone()
+    cur.execute(f"SELECT * FROM step WHERE recipeId = %s ORDER BY displayorder ;", (id,))
+    steps = cur.fetchall()
+    cur.execute(recipe_steps_query, (id,))
+    ingredients = cur.fetchall()
     cur.close()
     conn.close()
 
-    return render_template('recipe.html', recipe=recipe)
+    return render_template('recipe.html', recipe=recipe, steps=steps, ingredients=ingredients)
 
 @app.route('/')
 def index():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("SELECT * FROM recipe;")
+    cur.execute("SELECT * FROM recipe ORDER BY id ;")
     recipes = cur.fetchall()
     cur.close()
     conn.close()
     return render_template('index.html', recipes=recipes)
 
+
+@app.route('/admin')
+def admin_panel():
+    return render_template('admin.html')
+@app.route('/admin/recipe')
+def admin_recipe_list():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT * FROM recipe ORDER BY id ;")
+    recipes = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('admin_recipe_list.html', recipes=recipes)
+
+@app.route('/admin/recipe/add', methods=['GET', 'POST'])
+def admin_recipe_add():
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        servings = request.form['servings']
+        mainimage = request.form['mainimage']
+
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        try:
+            cur.execute(
+                "INSERT INTO recipe (name, description, servings, mainimage) VALUES (%s, %s, %s, %s);",
+                (name, description, servings, mainimage)
+            )
+            conn.commit()
+            flash('Recipe added successfully!', 'success')
+            return redirect(url_for('admin_recipe_list')) # Redirect to recipe list
+        except Exception as e:
+            conn.rollback()
+            flash(f'Error adding recipe: {e}', 'error')
+        finally:
+            cur.close()
+            conn.close()
+    return render_template('admin_recipe_add.html')
+
+@app.route('/admin/recipe/edit/<int:id>', methods=['GET', 'POST'])
+def admin_recipe_edit(id):
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    recipe = None
+    if request.method == 'POST':
+        name = request.form['name']
+        description = request.form['description']
+        servings = request.form['servings']
+        mainimage = request.form['mainimage']
+
+        try:
+            cur.execute(
+                "UPDATE recipe SET name=%s, description=%s, servings=%s, mainimage=%s WHERE id=%s;",
+                (name, description, servings, mainimage, id)
+            )
+            conn.commit()
+            flash('Recipe updated successfully!', 'success')
+            return redirect(url_for('admin_recipe_list'))
+        except Exception as e:
+            conn.rollback()
+            flash(f'Error updating recipe: {e}', 'error')
+        finally:
+            cur.close()
+            conn.close()
+    else: # GET request to display edit form
+        cur.execute("SELECT * FROM recipe WHERE id = %s;", (id,))
+        recipe = cur.fetchone()
+        cur.close()
+        conn.close()
+        if recipe is None:
+            flash('Recipe not found', 'error')
+            return redirect(url_for('admin_recipe_list'))
+
+    return render_template('admin_recipe_edit.html', recipe=recipe)
+
+@app.route('/admin/recipe/delete/<int:id>')
+def admin_recipe_delete(id):
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cur.execute("DELETE FROM recipe WHERE id = %s;", (id,))
+        conn.commit()
+        flash('Recipe deleted successfully!', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Error deleting recipe: {e}', 'error')
+    finally:
+        cur.close()
+        conn.close()
+    return redirect(url_for('admin_recipe_list'))

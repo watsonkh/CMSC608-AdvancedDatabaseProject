@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Add New Recipe{% endblock %}
+
+{% block content %}
+    <h1>Add New Recipe</h1>
+    <form method="post">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description"></textarea><br><br>
+
+        <label for="servings">Servings:</label><br>
+        <input type="text" id="servings" name="servings" min="1"><br><br>
+
+        <label for="mainimage">Main Image URL:</label><br>
+        <input type="text" id="mainimage" name="mainimage"><br><br>
+
+        <input type="submit" value="Add Recipe">
+    </form>
+{% endblock %}

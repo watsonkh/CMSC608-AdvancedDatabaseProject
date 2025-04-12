@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+    <h1>Admin Panel</h1>
+    <p>Choose a table to manage:</p>
+    <ul>
+        <li><a href="{{ url_for('admin_recipe_list') }}">Recipes</a></li>
+    </ul>
+{% endblock %}

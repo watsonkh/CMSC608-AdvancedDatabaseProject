@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Recipes{% endblock %}
+
+{% block content %}
+    <h1>Manage Recipes</h1>
+    <a href="{{ url_for('admin_recipe_add') }}" class="button">Add New Recipe</a>
+    <hr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Servings</th>
+                <th>Main Image</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recipe in recipes %}
+            <tr>
+                <td>{{ recipe.id }}</td>
+                <td>{{ recipe.name }}</td>
+                <td>{{ recipe.description }}</td>
+                <td>{{ recipe.servings }}</td>
+                <td><img src="{{ recipe.mainimage }}" width="50" height="50"></td>
+                <td>
+                    <a href="{{ url_for('admin_recipe_edit', id=recipe.id) }}">Edit</a> |
+                    <a href="{{ url_for('admin_recipe_delete', id=recipe.id) }}" onclick="return confirm('Are you sure you want to delete {{ recipe.name }}?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
