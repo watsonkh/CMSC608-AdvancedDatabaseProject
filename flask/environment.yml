@@ -1,0 +1,11 @@
+name: flask
+channels:
+  - defaults
+  - conda-forge
+  - anaconda
+dependencies:
+  - python
+  - anaconda::flask
+  - conda-forge::psycopg2
+  - conda-forge::standard-imghdr
+  - conda-forge::python-dotenv
