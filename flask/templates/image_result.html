@@ -3,4 +3,14 @@
 {% block content %}
     <h1>Image Uploaded Successfully</h1>
     <img src="{{ url_for('static', filename='uploads/' + filename) }}" alt="Uploaded Image" width="300">
+
+    <h2>Most Similar Images</h2>
+    <div>
+        {% for result in similar_images %}
+            <div style="margin-bottom: 20px;">
+                <h3>Similarity: {{ result.cosine_similarity | round(2) }}</h3>
+                <img src="{{ result.imagelocation }}" alt="Similar Image" width="300">
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
