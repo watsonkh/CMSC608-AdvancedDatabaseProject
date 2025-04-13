@@ -21,13 +21,20 @@
                 margin-left: 50px;
                 font-size: 20px;
         }
+        body {
+          background-image: url({{ url_for('static', filename='images/utensils.png') }});
+          background-repeat: repeat-y;
+          background-position: right-top;
+          background-attachment: fixed;
+          background-size: auto;
+        }
 
     </style>
 </head>
 <body>
     <nav>
         <a href="{{ url_for('index') }}">RecipeDB</a>
-        <a href="#">About</a>
+        <!-- <a href="#">About</a> -->
         <a href="{{ url_for('image_search')}}">Image Search</a>
         <a href="{{ url_for('admin_panel')}}">Admin</a>
     </nav>

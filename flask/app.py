@@ -98,8 +98,12 @@ def recipe(id=None):
     ingredients = cur.fetchall()
     for ingredient in ingredients:
         if ingredient['denominator'] is not None:
-            ingredient['quantity'] = f"{ingredient['quantity']} / {ingredient['denominator']}"
-        elif ingredient['quantity'] == 1 and ingredient['unittype'] == 'count' and ingredient['notation'] != '':
+            whole = ingredient['quantity'] // ingredient['denominator']
+            if whole > 0:
+                ingredient['quantity'] = f"{whole} {ingredient['quantity'] % ingredient['denominator']}/{ingredient['denominator']}"
+            else:
+                ingredient['quantity'] = f"{ingredient['quantity']} / {ingredient['denominator']}"
+        elif ingredient['quantity'] == 1 and ingredient['unittype'] == 'count' and ingredient['notation'] == '':
             ingredient['quantity'] = ""
     cur.execute(query.recipe_steps_query, (id,))
     steps = cur.fetchall()
