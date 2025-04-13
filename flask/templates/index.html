@@ -7,7 +7,9 @@
             <h3>#{{ recipe.id }} - 
                 <a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name }}</a>
             </h3>
-            <img src="{{recipe[4]}}" width="128" height="128">
+            {% if recipe.mainimage != "None" %}
+                <img src="{{recipe[4]}}" width="128" height="128">
+            {% endif %}
         </div>
     {% endfor %}
 {% endblock %}

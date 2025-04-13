@@ -4,44 +4,28 @@
     {% if recipe %}
         <h1>{% block title %} {{ recipe.name }} {% endblock %}</h1>
         <div class="recipe">
-            <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="256" height="256">
+            {% if recipe.mainimage != "None" %}
+                <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="256" height="256">
+            {% endif %}
             <p><strong>Description:</strong> {{ recipe.description }}</p>
             <p><strong>Ingredients:</strong></p>
             {% for ingredient in ingredients %}
                 <ul>
-                  <li>{{ ingredient.quantity }}{{ ingredient.notation }} {{ ingredient.name }}</li>
+                  <li>{{ ingredient.quantity }} {{ ingredient.notation }} {{ ingredient.name }}</li>
                 </ul>
             {% endfor %}
             <p><strong>Method:</strong></p>
             {% for step in steps %}
                 <ul>
-                  <li>{{ step.description }}</li>
+                  <li>
+                    <p> {{ step.description }}</p>
+                    {% if step.imagelocation %}
+                        <img src="{{ step.imagelocation }}" width="256" height="256">
+                    {% endif %}
+                </li>
                 </ul>
             {% endfor %}
             <p><strong>Servings:</strong> {{ recipe.servings }}</p>
-            <h2>Ingredients:</h2>
-            <ol>
-                {% for ingredient in ingredients %}
-                    <li>
-                        {% if ingredient.denominator %}
-                            <p> {{ ingredient.quantity }}/{{ ingredient.denominator }} {{ ingredient.unit_name }} {{  ingredient.name  }}</p>
-                        {% else %}
-                            <p>{{ ingredient.quantity }}  {{ ingredient.unit_name }} {{  ingredient.name  }}</p>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ol>
-            <h2>Steps:</h2>
-            <ol>
-                {% for step in steps %}
-                    <li>
-                        <p> {{ step.description }}</p>
-                        {% if step.imagelocation %}
-                            <img src="{{ step.imagelocation }}" width="256" height="256">
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ol>
         </div>
     {% else %}
         <h1>Recipe not found</h1>

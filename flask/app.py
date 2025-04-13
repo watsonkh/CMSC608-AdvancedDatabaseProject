@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from PIL import Image
 from embeddings import init_CLIP, create_embedding
-from queries import image_similarity_query, recipe_steps_query
+import queries as query
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
@@ -69,7 +69,7 @@ def image_search():
                 img_embedding = create_embedding([img], model, processor)[0].tolist()
                 conn = get_db_connection()
                 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                cur.execute(image_similarity_query, (img_embedding, img_embedding, img_embedding))
+                cur.execute(query.image_similarity_query, (img_embedding, img_embedding, img_embedding))
                 results = cur.fetchall()
                 print(results)
                 cur.close()
@@ -94,28 +94,14 @@ def recipe(id=None):
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute(f"SELECT * FROM recipe WHERE id = %s;", (id,))
     recipe = cur.fetchone()
-    cur.execute("""
-        select ri.quantity as quantity, ri.denominator as denominator, u.notation as notation, i.\"name\" as name, u.unitType as unitType
-          from recipe_ingredient ri
-          inner join recipe r on ri.recipeId = r.id
-          inner join ingredient i on ri.ingredientid = i.id
-          inner join unit u on ri.unit = u.id
-          where r.id = %s
-          order by ri.displayorder;
-    """, (id,))
+    cur.execute(query.recipe_ingredients_query, (id,))
     ingredients = cur.fetchall()
     for ingredient in ingredients:
         if ingredient['denominator'] is not None:
             ingredient['quantity'] = f"{ingredient['quantity']} / {ingredient['denominator']}"
         elif ingredient['quantity'] == 1 and ingredient['unittype'] == 'count' and ingredient['notation'] != '':
             ingredient['quantity'] = ""
-    cur.execute("""
-        select s.description
-           from step s
-           inner join recipe r on s.recipeId = r.id
-           where r.id = %s
-           order by s.displayorder;
-    """, (id,))
+    cur.execute(query.recipe_steps_query, (id,))
     steps = cur.fetchall()
     cur.close()
     conn.close()

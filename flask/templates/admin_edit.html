@@ -7,7 +7,7 @@
     <form method="post">
         {% for col_info in columns_info if col_info.name != 'id' %} {# Skip 'id' for edit form display #}
             <label for="{{ col_info.name }}">{{ col_info.name.capitalize() }}:</label><br>
-            <input type="text" id="{{ col_info.name }}" name="{{ col_info.name }}" value="{{ data_item[col_info.name] }}"><br><br> {# Basic text input, pre-filled value #}
+            <textarea id="{{ col_info.name }}" name="{{ col_info.name }}">{{ data_item[col_info.name] }}</textarea> <br><br> {# Basic text input, pre-filled value #}
         {% endfor %}
         <input type="submit" value="Update {{ table_name.capitalize() }}">
     </form>
