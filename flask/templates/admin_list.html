@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage {{ table_name.capitalize() }}{% endblock %}
+
+{% block content %}
+    <h1>Manage {{ table_name.capitalize() }}</h1>
+    <a href="{{ url_for('admin_add', table_name=table_name) }}" class="button">Add New {{ table_name.capitalize() }}</a>
+    <hr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+            {% for category, message in messages %}
+                <li class="{{ category }} {{ message }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th> {# Assuming 'id' is always the primary key #}
+                {% for column in columns if column != 'id' %} {# Skip 'id' column in header #}
+                    <th>{{ column.capitalize() }}</th>
+                {% endfor %}
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+            <tr>
+                <td>{{ item.id }}</td> {# Assuming 'id' is always the primary key #}
+                {% for column in columns if column != 'id' %} {# Skip 'id' column in data display #}
+                    <td>
+                        {% if column in ['mainimage', 'imagelocation'] and item[column] %}
+                            <img src="{{ item[column] }}" width="50" height="50" alt="{{ column.capitalize() }}">
+                        {% else %}
+                            {{ item[column] }}
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                <td>
+                    <a href="{{ url_for('admin_edit', table_name=table_name, id=item.id) }}">Edit</a> |
+                    <a href="{{ url_for('admin_delete', table_name=table_name, id=item.id) }}" onclick="return confirm('Are you sure you want to delete this {{ table_name.capitalize() }}?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -7,10 +7,11 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from PIL import Image
 from embeddings import init_CLIP, create_embedding
-from queries import image_similarity_query
+from queries import image_similarity_query, recipe_steps_query
 
 UPLOAD_FOLDER = 'static/uploads'
 ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif']
+TABLES_TO_MANAGE = ['recipe', 'ingredient', 'unit', 'step']
 DEFAULT_DB_PORT = 5432
 
 load_dotenv(override=True)
@@ -125,9 +126,166 @@ def recipe(id=None):
 def index():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("SELECT * FROM recipe;")
+    cur.execute("SELECT * FROM recipe ORDER BY id ;")
     recipes = cur.fetchall()
     cur.close()
     conn.close()
     return render_template('index.html', recipes=recipes)
 
+
+@app.route('/admin')
+def admin_panel():
+    return render_template('admin.html', tables=TABLES_TO_MANAGE)
+
+@app.route('/admin/<table_name>')
+def admin_list(table_name):
+    if table_name not in TABLES_TO_MANAGE:
+        flash('Invalid table name', 'error')
+        return redirect(url_for('admin_panel'))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        # Get column names dynamically
+        cur.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' ORDER BY ordinal_position;")
+        columns_result = cur.fetchall()
+        column_names = [col['column_name'] for col in columns_result]
+        if 'recipeid' in column_names:
+            cur.execute(f"SELECT * FROM {table_name} ORDER BY recipeid, id;")
+        else:
+        # Fetch data from the table
+            cur.execute(f"SELECT * FROM {table_name} ORDER BY id;") # No ordering for generic list for now, can add later
+        data = cur.fetchall()
+    except Exception as e:
+        cur.close()
+        conn.close()
+        flash(f'Error fetching data for table {table_name}: {e}', 'error')
+        return redirect(url_for('admin_panel'))
+    finally:
+        cur.close()
+        conn.close()
+
+    return render_template('admin_list.html', table_name=table_name, columns=column_names, data=data)
+
+@app.route('/admin/<table_name>/add', methods=['GET', 'POST'])
+def admin_add(table_name):
+    if table_name not in TABLES_TO_MANAGE:
+        flash('Invalid table name', 'error')
+        return redirect(url_for('admin_panel'))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+    try:
+        # Get column names for form generation (excluding serial/id columns if needed)
+        cur.execute(f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table_name}' ORDER BY ordinal_position;")
+        columns_info_result = cur.fetchall()
+        columns_info = [{'name': col['column_name'], 'type': col['data_type']} for col in columns_info_result] # Get column name and type
+
+        if request.method == 'POST':
+            column_names = [col_info['name'] for col_info in columns_info if col_info['name'] not in ['id']] # Exclude 'id' for INSERT
+            values = [request.form.get(col) for col in column_names] # Get values from form
+
+            placeholders = ', '.join(['%s'] * len(column_names))
+            columns_str = ', '.join(column_names)
+            insert_query = f"INSERT INTO {table_name} ({columns_str}) VALUES ({placeholders});"
+
+            try:
+                cur.execute(insert_query, tuple(values))
+                conn.commit()
+                flash(f'{table_name.capitalize()} added successfully!', 'success')
+                return redirect(url_for('admin_list', table_name=table_name))
+            except Exception as e:
+                conn.rollback()
+                flash(f'Error adding {table_name.capitalize()}: {e}', 'error')
+
+    except Exception as e:
+        cur.close()
+        conn.close()
+        flash(f'Error preparing add form for {table_name.capitalize()}: {e}', 'error')
+        return redirect(url_for('admin_panel'))
+    finally:
+        if request.method == 'GET': # Only close connection if it's a GET request, POST path handles closing in its own scope
+            cur.close()
+            conn.close()
+
+
+    return render_template('admin_add.html', table_name=table_name, columns_info=columns_info)
+
+@app.route('/admin/<table_name>/edit/<id>', methods=['GET', 'POST'])
+def admin_edit(table_name, id):
+    if table_name not in TABLES_TO_MANAGE:
+        flash('Invalid table name', 'error')
+        return redirect(url_for('admin_panel'))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    data_item = None
+
+    try:
+        # Get column names and data types for form generation
+        cur.execute(f"SELECT column_name, data_type FROM information_schema.columns WHERE table_name = '{table_name}' ORDER BY ordinal_position;")
+        columns_info_result = cur.fetchall()
+        columns_info = [{'name': col['column_name'], 'type': col['data_type']} for col in columns_info_result]
+
+        if request.method == 'POST':
+            set_clauses = []
+            update_values = []
+            for col_info in columns_info:
+                col_name = col_info['name']
+                if col_name != 'id': # Don't update ID column
+                    set_clauses.append(f"{col_name} = %s")
+                    update_values.append(request.form.get(col_name))
+
+            update_values.append(id) # Add ID for WHERE clause
+            set_clause_str = ', '.join(set_clauses)
+            update_query = f"UPDATE {table_name} SET {set_clause_str} WHERE id = %s;"
+
+            try:
+                cur.execute(update_query, tuple(update_values))
+                conn.commit()
+                flash(f'{table_name.capitalize()} updated successfully!', 'success')
+                return redirect(url_for('admin_list', table_name=table_name))
+            except Exception as e:
+                conn.rollback()
+                flash(f'Error updating {table_name.capitalize()}: {e}', 'error')
+
+        else: # GET request to display edit form
+            cur.execute(f"SELECT * FROM {table_name} WHERE id = %s;", (id,))
+            data_item = cur.fetchone()
+            if data_item is None:
+                flash(f'{table_name.capitalize()} not found', 'error')
+                return redirect(url_for('admin_list', table_name=table_name))
+
+    except Exception as e:
+        cur.close()
+        conn.close()
+        flash(f'Error preparing edit form for {table_name.capitalize()}: {e}', 'error')
+        return redirect(url_for('admin_list', table_name=table_name))
+    finally:
+        if request.method == 'GET': # Only close connection if GET, POST path handles closing in its own scope
+            cur.close()
+            conn.close()
+
+
+    return render_template('admin_edit.html', table_name=table_name, columns_info=columns_info, data_item=data_item, item_id=id)
+
+@app.route('/admin/<table_name>/delete/<id>')
+def admin_delete(table_name, id):
+    if table_name not in TABLES_TO_MANAGE:
+        flash('Invalid table name', 'error')
+        return redirect(url_for('admin_panel'))
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    try:
+        cur.execute(f"DELETE FROM {table_name} WHERE id = %s;", (id,))
+        conn.commit()
+        flash(f'{table_name.capitalize()} deleted successfully!', 'success')
+    except Exception as e:
+        conn.rollback()
+        flash(f'Error deleting {table_name.capitalize()}: {e}', 'error')
+    finally:
+        cur.close()
+        conn.close()
+    return redirect(url_for('admin_list', table_name=table_name))

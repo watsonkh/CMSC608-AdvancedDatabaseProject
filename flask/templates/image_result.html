@@ -8,7 +8,8 @@
     <div>
         {% for result in similar_images %}
             <div style="margin-bottom: 20px;">
-                <h3>Similarity: {{ result.cosine_similarity | round(2) }}</h3>
+                <a href="{{ url_for('recipe', id=result.recipeid) }}">{{ result.recipe_name }}</a>
+                <p>Similarity: {{ result.cosine_similarity | round(2) }}</p>
                 <img src="{{ result.imagelocation }}" alt="Similar Image" width="300">
             </div>
         {% endfor %}
