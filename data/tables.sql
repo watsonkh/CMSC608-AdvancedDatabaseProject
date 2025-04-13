@@ -101,3 +101,12 @@ CREATE TABLE IF NOT EXISTS image (
 CREATE INDEX IF NOT EXISTS hnsw_embedding_idx ON image
 USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
+
+
+CREATE TABLE IF NOT EXISTS recipe_embeddings(
+  recipeId BIGINT NOT NULL PRIMARY KEY,
+  description_embedding vector(768) NOT NULL,
+  FOREIGN KEY (recipeId) REFERENCES recipe(id));
+
+CREATE INDEX ON recipe_embeddings USING ivfflat (description_embedding vector_ip_ops) WITH (lists = 10);
+

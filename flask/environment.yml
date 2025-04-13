@@ -5,7 +5,15 @@ channels:
   - anaconda
 dependencies:
   - python
-  - anaconda::flask
   - conda-forge::psycopg2
+  - anaconda::flask
   - conda-forge::standard-imghdr
   - conda-forge::python-dotenv
+  # - anaconda::postgresql (installed after with `conda install anaconda::postgresql`)
+  # - conda-forge::pgvector (installed after with `pip install pgvector`)
+  - anaconda::pillow # (installed after with `conda install anaconda::pillow`)
+  - pytorch::pytorch
+  - anaconda::requests
+  - numpy
+  # pip install transformers
+
