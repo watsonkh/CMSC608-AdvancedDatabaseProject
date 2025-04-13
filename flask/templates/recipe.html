@@ -6,6 +6,18 @@
         <div class="recipe">
             <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="256" height="256">
             <p><strong>Description:</strong> {{ recipe.description }}</p>
+            <p><strong>Ingredients:</strong></p>
+            {% for ingredient in ingredients %}
+                <ul>
+                  <li>{{ ingredient.quantity }}{{ ingredient.notation }} {{ ingredient.name }}</li>
+                </ul>
+            {% endfor %}
+            <p><strong>Method:</strong></p>
+            {% for step in steps %}
+                <ul>
+                  <li>{{ step.description }}</li>
+                </ul>
+            {% endfor %}
             <p><strong>Servings:</strong> {{ recipe.servings }}</p>
         </div>
     {% else %}
