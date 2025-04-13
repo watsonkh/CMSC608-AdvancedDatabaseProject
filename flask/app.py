@@ -6,7 +6,7 @@ from flask import Flask, render_template, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from PIL import Image
-from embeddings import init_CLIP, create_embedding
+from embeddings import init_CLIP, create_embedding, create_text_embedding
 import queries as query
 
 UPLOAD_FOLDER = 'static/uploads'

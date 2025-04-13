@@ -6,6 +6,8 @@ from PIL import Image
 import os
 import hashlib
 import requests
+from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 CACHE_DIR = "static/image_cache"
@@ -112,11 +114,60 @@ def populate_image_table(recipes, steps, conn: psycopg2.extensions.connection):
     conn.commit()
     cur.close()
 
+
+def query_recipe_descriptions(conn: psycopg2.extensions.connection):
+    """
+    Queries for all recipe descriptions in locally running PostgreSQL database.
+    Returns list of tuples (id, description)
+    """
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT id, description FROM recipe")
+    recipes = cur.fetchall()
+    cur.close()
+    return recipes
+
+def create_text_embedding(descriptions: list[str]):
+    """
+    Given list of strings, produces list of 768 length embeddings/vectors.
+    Uses `SentenceTransformer` to produce embeddings.
+    """
+    text_model = SentenceTransformer('all-mpnet-base-v2')
+    return list(text_model.encode(descriptions, normalize_embeddings=True))
+
+def populate_text_embeddings(recipe_info, conn: psycopg2.extensions.connection):
+    """
+    Inserts generated text embeddings from Recipe and Step tables into Text table.
+    Connects to PostgreSQL DB with psycopg2 connection.
+    """
+    print("Populating text table with embeddings!")
+    cur = conn.cursor()
+    for recipe in recipe_info:
+        recipeId = recipe[0]
+        textEmbedding = recipe[1].astype(float).tolist()
+        cur.execute("INSERT INTO recipe_embeddings (recipeid, description_embedding) VALUES (%s, %s);", (recipeId, textEmbedding))
+
+
+
 def main():
-    model, processor = init_CLIP()
     conn = get_db_connection()
+
+    # text embeddings
+    descriptions = query_recipe_descriptions(conn)
+    ids = [recipe[0] for recipe in descriptions]
+    text_descriptions = [recipe[1] for recipe in descriptions]
+    embeddings = create_text_embedding(text_descriptions)
+    info = [(ids[i], embeddings[i]) for i in range(len(descriptions))]
+    # print(info[0])
+    # print(descriptions)
+    # print(len(info))
+    # return
+    populate_text_embeddings(info, conn)
+
+    model, processor = init_CLIP()
+
     recipes, steps = query_image_urls(conn)
     print("Creating embeddings for mainImage urls in Recipe table")
+    print(recipes)
     recipe_img_embeddings = create_embedding(
         [recipe[2] for recipe in recipes],
         model, 
@@ -135,4 +186,5 @@ def main():
 
 
 if __name__ == "__main__":
+    load_dotenv()
     main()
