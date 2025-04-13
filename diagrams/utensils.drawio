@@ -1,0 +1,13 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.2.2 Chrome/134.0.6998.178 Electron/35.1.2 Safari/537.36" version="26.2.2">
+  <diagram name="Page-1" id="g6d3xTXQ_hNzWqJ7znrx">
+    <mxGraphModel dx="819" dy="641" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="mlaohPCFL2lV5kozk6Rj-1" value="" style="shape=mxgraph.signs.food.restaurant_1;html=1;pointerEvents=1;fillColor=#9D0300;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;direction=north;" vertex="1" parent="1">
+          <mxGeometry x="360" y="320" width="150" height="70" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
