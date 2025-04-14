@@ -5,20 +5,18 @@
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/styles.css') }}">
     <title>{% block title %} {% endblock %}- CMSC-608 Recipes</title>
 
-    <!-- <title>{% block title %} {% endblock %}- FlaskApp</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='recipes.css') }}"> -->
 </head>
 <body>
-    <nav>
-        <a href="{{ url_for('index') }}">RecipeDB</a>
-        <!-- <a href="#">About</a> -->
-        <a href="{{ url_for('image_search')}}">Image Search</a>
-        <a href="{{ url_for('admin_panel')}}">Admin</a>
-        <a href="{{ url_for('recipe_search')}}">Search</a>
+    <nav class="navbar">
+      <a href="{{ url_for('index') }}" class="nav-link">RecipeDB</a>
+      <a href="{{ url_for('image_search') }}" class="nav-link">Image Search</a>
+      <a href="{{ url_for('recipe_search') }}" class="nav-link">Search</a>
+      <a href="{{ url_for('admin_panel') }}" class="nav-link">Admin</a>
     </nav>
-    <hr>
+    <!-- <hr> -->
     <div class="container">
       <div class="content">
           {% block content %} {% endblock %}
