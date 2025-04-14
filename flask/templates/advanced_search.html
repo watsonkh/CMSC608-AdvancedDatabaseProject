@@ -23,8 +23,10 @@
             {% for recipe in search_results %}
                 <div class="recipe-card">
                     <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="128" height="128">
-                    <h3><a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name}}</a></h3>
-                    <p>{{ recipe.description[:250] + "..."}}</p>
+                    <div class = "recipe-card-content">
+                        <h3><a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name}}</a></h3>
+                        <p>{{ recipe.description[:250] + "..."}}</p>
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}

@@ -33,7 +33,44 @@
     display: none;
     overflow: hidden;
     background-color: #f1f1f1;
-  }
+}
+
+.recipe-card {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.recipe-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.recipe-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+}
+
+.recipe-card-content h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.recipe-card-content p {
+    margin: 0;
+    font-size: 1rem;
+    color: #666;
+}
+
 
 body {
     font-family: Arial, sans-serif;
