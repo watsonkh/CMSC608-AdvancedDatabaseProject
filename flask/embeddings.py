@@ -1,3 +1,5 @@
+#!python
+
 import torch
 import psycopg2
 import psycopg2.extras
@@ -179,12 +181,14 @@ def main():
         model,
         processor
     )
+    print("Updating database with embeddings")
     replace_img_with_embedding(recipes, recipe_img_embeddings)
     replace_img_with_embedding(steps, step_img_embeddings)
     populate_image_table(recipes, steps, conn)
+    print("Done")
     conn.close()
 
 
 if __name__ == "__main__":
-    load_dotenv()
+    load_dotenv(override=True)
     main()
