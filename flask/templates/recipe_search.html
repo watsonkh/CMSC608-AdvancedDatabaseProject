@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %} Recipe Search {% endblock %}
+{% block content %}
+<h1>Recipe Search</h1>
+<form method="POST">
+    <div class="search-form">
+        <input type="text" name="search_query" placeholder="Search Recipes" required>
+        <button type="submit">Search</button>
+    </div>
+</form>
+<a class="alt-search" href="{{url_for('advanced_search')}}">advanced search</a>
+
+<div class="search-results">
+    {% if query %}
+        <h2>Search results for {{query}}:</h2>
+    {% endif %}
+
+    {% if search_results %}
+        <div class="recipe-list">
+        {% for recipe in search_results %}
+            <div class="recipe-card">
+                <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="128" height="128" onerror="this.src='static/images/bowl.png';">
+                <div class = "recipe-card-content">
+                    <h3><a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name}}</a></h3>
+                    <p>{{ recipe.description[:250] + "..."}}</p>
+                </div>
+            </div>
+        {% endfor %}
+        {% if search_results|length == 0 %}
+            <h2>No recipes found.</h2>
+        {% endif %}
+        </div>
+    {% endif %}
+    <p>{{ text }}</p>
+
+
+</div>
+{% endblock %}

@@ -3,7 +3,13 @@
 {% block content %}
     <h1>{% block title %} Recipes {% endblock %}</h1>
     {% for recipe in recipes %}
-        <div class='recipe {% if loop.index0 % 2 == 1 %}reverse{% endif %}'>
+        <div class="recipe-card">
+            <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="128" height="128" onerror="this.src='static/images/bowl.png';">
+            <div class = "recipe-card-content">
+                <h3><a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name}}</a></h3>
+                <p>{{ recipe.description[:250] + "..."}}</p>
+
+        <!-- <div class='recipe {% if loop.index0 % 2 == 1 %}reverse{% endif %}'>
             <div class="recipe-image-wrapper">
                 {% if recipe.mainimage != "None" %}
                     <img src="{{recipe[4]}}" alt="Image for {{ recipe.name }}" class="recipe-image">
@@ -11,7 +17,7 @@
             </div>
             <div class="recipe-info">
                 <span class="recipe-id">{{ recipe.id }}</span>
-                <a href="{{ url_for('recipe', id=recipe.id) }}" class= "recipe-name">{{ recipe.name }}</a>
+                <a href="{{ url_for('recipe', id=recipe.id) }}" class= "recipe-name">{{ recipe.name }}</a> -->
             </div>
             <div class="recipe-image-wrapper"></div>
         </div>
