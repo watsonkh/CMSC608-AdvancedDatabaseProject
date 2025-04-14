@@ -92,6 +92,10 @@ body {
     background-color: transparent;
 }
 
+.recipe-image-wrapper:empty {
+    background-color: transparent;
+}
+
 .recipe-image {
     width: 64px;
     height: 64px;
