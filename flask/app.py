@@ -287,12 +287,24 @@ def recipe_search():
     if request.method == 'POST':
         query = request.form.get('search_query')
 
-        # for now, just returns the query, will need to get the results from db
-        # return render_template('recipe_search.html', search_results=query)
-        # should do something like:
+        # Fuzzy search:
+        embedding = create_text_embedding([query])[0].astype(float).tolist()
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute(f"SELECT * from public.recipe WHERE LOWER(name) LIKE '%%' || LOWER(%s) || '%%';", (query, ))
+        cur.execute(f"SELECT id, name, mainimage, description from recipe INNER JOIN recipe_embeddings on recipe.id=recipe_embeddings.recipeid ORDER BY description_embedding <=> %s::vector LIMIT 10", (embedding,))
+        recipes = cur.fetchall()
+        cur.close()
+        conn.close()
+        if len(recipes) > 0:
+            return render_template('recipe_search.html', search_results=recipes, query=query, text="")
+        else:
+            return render_template('recipe_search.html', search_results=recipes, query=query, text="No results found")
+        
+
+        # Exact search:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(f"SELECT * from public.recipe WHERE LOWER(name) LIKE '%%' || LOWER(%s) || '%%' OR LOWER(description) LIKE '%%' || LOWER(%s) || '%%' ;", (query, query))
         recipes = cur.fetchall()
         cur.close()
         conn.close()
