@@ -291,7 +291,7 @@ def recipe_search():
         embedding = create_text_embedding([query])[0].astype(float).tolist()
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute(f"SELECT id, name, mainimage, description from recipe INNER JOIN recipe_embeddings on recipe.id=recipe_embeddings.recipeid ORDER BY description_embedding <=> %s::vector LIMIT 10", (embedding,))
+        cur.execute(f"SELECT id, name, mainimage, description from recipe INNER JOIN recipe_embeddings on recipe.id=recipe_embeddings.recipeid ORDER BY description_embedding <=> %s::vector DESC LIMIT 10", (embedding,))
         recipes = cur.fetchall()
         cur.close()
         conn.close()

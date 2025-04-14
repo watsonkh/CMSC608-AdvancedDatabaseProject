@@ -120,9 +120,17 @@ def query_recipe_descriptions(conn: psycopg2.extensions.connection):
     Queries for all recipe descriptions in locally running PostgreSQL database.
     Returns list of tuples (id, description)
     """
+    # Add recipe.name, recipe.description, step.description, ingredient.name into on string, then embed that
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("SELECT id, description FROM recipe")
+    cur.execute("SELECT id, description, name FROM recipe")
     recipes = cur.fetchall()
+    for (i, (id, desc, name)) in enumerate(recipes):
+        cur.execute(f"SELECT s.description from step s WHERE s.recipeid = {id}")
+        descriptions = cur.fetchall()
+        cur.execute(f"select i.name from recipe_ingredient ri inner join ingredient i on i.id = ri.ingredientid WHERE ri.recipeid = {id}")
+        ingredients = cur.fetchall()
+
+        recipes[i][2] = desc + " " + name + " " + " ".join([d[0] for d in descriptions]) + " " + " ".join([i[0] for i in ingredients])
     cur.close()
     return recipes
 
