@@ -320,16 +320,20 @@ def recipe_search():
 @app.route('/advanced_search', methods=['GET', 'POST'])
 def advanced_search():
     if request.method == 'POST':
-        query = request.form.get('search_query')
+        query_name = request.form.get('query_name')
+        query_ingredients = request.form.get('query_ingredients')
+        query_steps = request.form.get('query_steps')
+        query_description = request.form.get('query_description')
 
-        # for now, just returns the query, will need to get the results from db
-        # return render_template('recipe_search.html', search_results=query)
-        # should do something like:
+        # Exact search:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        cur.execute(f"SELECT * from public.recipe WHERE LOWER(name) LIKE '%%' || LOWER(%s) || '%%';", (query, ))
+        cur.execute(f"SELECT DISTINCT r.id, r.name, r.mainimage, r.description from recipe r inner join step s on r.id = s.recipeid inner join recipe_ingredient ri on ri.recipeid = r.id inner join ingredient i on i.id = ri.ingredientid WHERE LOWER(r.name) LIKE '%%' || LOWER(%s) || '%%' AND LOWER(r.description) LIKE '%%' || LOWER(%s) || '%%' AND LOWER(s.description) LIKE '%%' || LOWER(%s) || '%%' AND LOWER(i.name) LIKE '%%' || LOWER(%s) || '%%';", (query_name, query_description, query_steps, query_ingredients))
         recipes = cur.fetchall()
         cur.close()
         conn.close()
-        return render_template('advanced_search.html', search_results=recipes, text="hi")
-    return render_template('advanced_search.html', search_results=[], text='gello')
+        if len(recipes) > 0:
+            return render_template('advanced_search.html', search_results=recipes, query=query, text="")
+        else:
+            return render_template('advanced_search.html', search_results=recipes, query=query, text="No results found")
+    return render_template('advanced_search.html', search_results=[], query='', text="")

@@ -1,36 +1,53 @@
 {% extends 'base.html' %}
-{% block title %} Recipe Search {% endblock %}
+{% block title %}Advanced Recipe Search {% endblock %}
 {% block content %}
 <h1>Advanced Recipe Search</h1>
 <form method="POST">
     <div class="advanced-search-form">
-        <input type="text" name="search_query" placeholder="Search Recipes" required>
-        <input type="text" name="search_query" placeholder="Search Recipes" required>
-        <input type="text" name="search_query" placeholder="Search Recipes" required>
-        <input type="text" name="search_query" placeholder="Search Recipes" required>
+        <div class="advanced-search-item">
+            <p class="advanced-search-text">Name:</p>
+            <input type="text" name="query_name" placeholder="Search Name">
+        </div>
+        <div class="advanced-search-item">
+            <p class="advanced-search-text">Ingredients:</p>
+            <input type="text" name="query_ingredients" placeholder="Search Ingredients">
+        </div>
+        <div class="advanced-search-item">
+            <p class="advanced-search-text">Steps:</p>
+            <input type="text" name="query_steps" placeholder="Search Method">
+        </div>
+        <div class="advanced-search-item">
+            <p class="advanced-search-text">Description:</p>
+            <input type="text" name="query_description" placeholder="Search Recipe Description">
+        </div>
         <button type="submit">Search</button>
     </div>
 </form>
-<a class="alt-search" href="{{url_for('recipe_search')}}">basic search</p>
+<a class="alt-search" href="{{url_for('recipe_search')}}">basic search</a>
 
 <div class="search-results">
+    {% if query %}
+        <h2>Search results:</h2>
+    {% endif %}
+
     {% if search_results %}
-        <h2>Search Results:</h2>
         <div class="recipe-list">
-        {% if search_results == 0 %}
-            <h2>No recipes found.</h2>
-        {% else %}
-            {% for recipe in search_results %}
-                <div class="recipe-card">
-                    <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="128" height="128" onerror="this.src='static/images/bowl.png';">
-                    <div class = "recipe-card-content">
-                        <h3><a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name}}</a></h3>
-                        <p>{{ recipe.description[:250] + "..."}}</p>
-                    </div>
+        {% for recipe in search_results %}
+            <div class="recipe-card">
+                <img src="{{ recipe.mainimage }}" alt="{{ recipe.name }}" width="128" height="128" onerror="this.src='static/images/bowl.png';">
+                <div class = "recipe-card-content">
+                    <h3><a href="{{ url_for('recipe', id=recipe.id) }}">{{ recipe.name}}</a></h3>
+                    <p>{{ recipe.description[:250] + "..."}}</p>
                 </div>
-            {% endfor %}
+            </div>
+        {% endfor %}
+        {% if search_results|length == 0 %}
+            <h2>No recipes found.</h2>
         {% endif %}
         </div>
     {% endif %}
+    <p>{{ text }}</p>
+
+
 </div>
 {% endblock %}

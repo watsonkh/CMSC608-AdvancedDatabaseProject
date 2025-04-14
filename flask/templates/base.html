@@ -10,16 +10,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='recipes.css') }}"> -->
 </head>
 <body>
-    <nav class="navbar">
-      <a href="{{ url_for('index') }}" class="nav-link">RecipeDB</a>
-      <a href="{{ url_for('image_search') }}" class="nav-link">Image Search</a>
-      <a href="{{ url_for('recipe_search') }}" class="nav-link">Search</a>
-      <a href="{{ url_for('admin_panel') }}" class="nav-link">Admin</a>
-    </nav>
-    <!-- <hr> -->
-    <div class="container">
-      <div class="content">
+    <div id="main-wrapper">
+      <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="nav-link">RecipeDB</a>
+        <a href="{{ url_for('image_search') }}" class="nav-link">Image Search</a>
+        <a href="{{ url_for('recipe_search') }}" class="nav-link">Search</a>
+        <a href="{{ url_for('admin_panel') }}" class="nav-link">Admin</a>
+      </nav>
+      <div class="container">
+        <div class="content">
           {% block content %} {% endblock %}
+        </div>
       </div>
     </div>
 </body>
