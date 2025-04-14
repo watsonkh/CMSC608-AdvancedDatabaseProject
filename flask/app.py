@@ -279,3 +279,45 @@ def admin_delete(table_name, id):
         cur.close()
         conn.close()
     return redirect(url_for('admin_list', table_name=table_name))
+
+
+
+@app.route('/recipe_search', methods=['GET', 'POST'])
+def recipe_search():
+    if request.method == 'POST':
+        query = request.form.get('search_query')
+
+        # for now, just returns the query, will need to get the results from db
+        # return render_template('recipe_search.html', search_results=query)
+        # should do something like:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(f"SELECT * from public.recipe WHERE LOWER(name) LIKE '%%' || LOWER(%s) || '%%';", (query, ))
+        recipes = cur.fetchall()
+        cur.close()
+        conn.close()
+        if len(recipes) > 0:
+            return render_template('recipe_search.html', search_results=recipes, query=query, text="")
+        else:
+            return render_template('recipe_search.html', search_results=recipes, query=query, text="No results found")
+    return render_template('recipe_search.html', search_results=[], query='', text="")
+
+
+
+
+@app.route('/advanced_search', methods=['GET', 'POST'])
+def advanced_search():
+    if request.method == 'POST':
+        query = request.form.get('search_query')
+
+        # for now, just returns the query, will need to get the results from db
+        # return render_template('recipe_search.html', search_results=query)
+        # should do something like:
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        cur.execute(f"SELECT * from public.recipe WHERE LOWER(name) LIKE '%%' || LOWER(%s) || '%%';", (query, ))
+        recipes = cur.fetchall()
+        cur.close()
+        conn.close()
+        return render_template('advanced_search.html', search_results=recipes, text="hi")
+    return render_template('advanced_search.html', search_results=[], text='gello')
