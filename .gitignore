@@ -2,3 +2,4 @@
 __pycache__
 flask/static/image_cache
 .env
+output.sql
