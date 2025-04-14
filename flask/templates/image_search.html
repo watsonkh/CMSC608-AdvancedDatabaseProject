@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% block title %} Image Search {% endblock %}
-    <h1>Upload an Image</h1>
+    <h1>{% block title %}Upload an Image{% endblock %}</h1>
     {% with messages = get_flashed_messages() %}
         {% if messages %}
             <ul>
