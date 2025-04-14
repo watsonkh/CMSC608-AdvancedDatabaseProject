@@ -4,7 +4,7 @@
 image_similarity_query = """\
     SELECT image.id, recipeId, imageLocation, \
        (embedding <=> %s::vector(512)) AS cosine_distance, \
-       ((1 - cosine_distance) / 2) AS cosine_similarity, \
+       (1 - (embedding <=> %s::vector(512)) / 2) AS cosine_similarity, \
        recipe.name as recipe_name
     FROM image \
     JOIN recipe on image.recipeid = recipe.id \
