@@ -3,62 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %} {% endblock %}- FlaskApp</title>
-    <style>
-        nav a {
-            color: #d64161;
-            font-size: 3em;
-            margin-left: 50px;
-            text-decoration: none;
-        }
-
-        .book {
-            padding: 20px;
-            margin: 10px;
-            background-color: #f7f4f4;
-        }
-
-        .review {
-                margin-left: 50px;
-                font-size: 20px;
-        }
-        body {
-          margin: 0;
-          padding: 0;
-        }
-
-        .background-wrapper {
-          position: relative;
-        }
-
-        .background-wrapper::after {
-          content: "";
-          position: absolute;
-          top: 0;
-          right: 0;
-          width: 100%;
-          height: 100%;
-          background-image: url({{ url_for('static', filename='images/utensils.png') }});
-          background-repeat: repeat-y;
-          background-size: auto;
-          background-position: right top;
-          opacity: 0.9;
-          pointer-events: none;
-          z-index: -1;
-        }
-
-        .content {
-          position: relative;
-          z-index: 1;
-          padding: 5px;
-          width: 70%;
-          max-width: 800px;
-          margin-left: clamp(3%, 3%, 100px); /* minimum 5%, ideal 5%, maximum 100px */
-          margin-right: 0;
-          margin-top: 0;
-          margin-bottom: 0;
-        }
-
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recipes.css') }}">
 </head>
 <body>
     <nav>
