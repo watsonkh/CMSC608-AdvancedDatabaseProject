@@ -108,5 +108,5 @@ CREATE TABLE IF NOT EXISTS recipe_embeddings(
   description_embedding vector(768) NOT NULL,
   FOREIGN KEY (recipeId) REFERENCES recipe(id));
 
-CREATE INDEX ON recipe_embeddings USING ivfflat (description_embedding vector_ip_ops) WITH (lists = 10);
+CREATE INDEX ON recipe_embeddings USING ivfflat (description_embedding vector_ip_ops) WITH (lists = 1);
 
