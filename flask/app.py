@@ -69,7 +69,7 @@ def image_search():
                 img_embedding = create_embedding([img], model, processor)[0].tolist()
                 conn = get_db_connection()
                 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-                cur.execute(query.image_similarity_query, (img_embedding, img_embedding, img_embedding))
+                cur.execute(query.image_similarity_query, (img_embedding, img_embedding))
                 results = cur.fetchall()
                 print(results)
                 cur.close()
