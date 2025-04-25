@@ -11,10 +11,17 @@
             </ul>
         {% endif %}
     {% endwith %}
-    <div class="search-form">
-        <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" accept="image/*" required>
+
+    <div class="upload-container">
+        <form method="POST" enctype="multipart/form-data" id="upload-form">
+            <input type="file" name="file" id="file-input" accept="image/*" required hidden>
+            <div id="drop-zone" class="drop-zone">
+                <p id="drop-text"> Drag and drop an image to search here, or click to select one.</p>
+                <img id="preview"/>
+            </div>
             <button type="submit">Upload</button>
         </form>
     </div>
+
+    <script src="{{ url_for('static', filename='js/image_upload.js')}}"></script>
 {% endblock %}

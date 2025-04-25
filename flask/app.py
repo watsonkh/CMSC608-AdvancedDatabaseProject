@@ -23,6 +23,8 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'supersecretkey'
 
+MODEL, PROCESSOR = init_CLIP()
+
 def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -64,9 +66,8 @@ def image_search():
 
             # If given filepath is valid image
             if imghdr.what(img_filepath):
-                model, processor = init_CLIP()
                 img = Image.open(img_filepath).convert("RGB").resize(size=[256, 256])
-                img_embedding = create_embedding([img], model, processor)[0].tolist()
+                img_embedding = create_embedding([img], MODEL, PROCESSOR)[0].tolist()
                 conn = get_db_connection()
                 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 cur.execute(query.image_similarity_query, (img_embedding, img_embedding))
