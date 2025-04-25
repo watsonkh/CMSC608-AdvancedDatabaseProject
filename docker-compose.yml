@@ -1,0 +1,32 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: project
+      POSTGRES_DB: recipes
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+
+  web:
+    build: .
+    environment:
+      FLASK_APP: app.py
+      FLASK_ENV: development
+      HOST: db
+      DATABASE: recipes
+      USER: postgres
+      PASSWORD: project
+      PORT: 5432
+    ports:
+      - "5001:5000"
+    depends_on:
+      - db
+    command: >
+      bash -c "
+      python embeddings.py &&
+      gunicorn -b 0.0.0.0:5000 app:app
+      "
+
