@@ -21,7 +21,7 @@ services:
       PASSWORD: project
       PORT: 5432
     ports:
-      - "5001:5000"
+      - "5000:5000"
     depends_on:
       - db
     command: >
