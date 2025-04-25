@@ -159,42 +159,48 @@ def populate_text_embeddings(recipe_info, conn: psycopg2.extensions.connection):
 
 
 def main():
-    conn = get_db_connection()
+    with get_db_connection() as conn:
 
-    # text embeddings
-    descriptions = query_recipe_descriptions(conn)
-    ids = [recipe[0] for recipe in descriptions]
-    text_descriptions = [recipe[1] for recipe in descriptions]
-    embeddings = create_text_embedding(text_descriptions)
-    info = [(ids[i], embeddings[i]) for i in range(len(descriptions))]
-    # print(info[0])
-    # print(descriptions)
-    # print(len(info))
-    # return
-    populate_text_embeddings(info, conn)
+        try:
+            # text embeddings
+            descriptions = query_recipe_descriptions(conn)
+            ids = [recipe[0] for recipe in descriptions]
+            text_descriptions = [recipe[1] for recipe in descriptions]
+            embeddings = create_text_embedding(text_descriptions)
+            info = [(ids[i], embeddings[i]) for i in range(len(descriptions))]
+            # print(info[0])
+            # print(descriptions)
+            # print(len(info))
+            # return
+            populate_text_embeddings(info, conn)
 
-    model, processor = init_CLIP()
+            model, processor = init_CLIP()
 
-    recipes, steps = query_image_urls(conn)
-    print("Creating embeddings for mainImage urls in Recipe table")
-    print(recipes)
-    recipe_img_embeddings = create_embedding(
-        [recipe[2] for recipe in recipes],
-        model, 
-        processor
-    )
-    print("Creating embeddings for imageLocation urls in Step table")
-    step_img_embeddings = create_embedding(
-        [step[2] for step in steps],
-        model,
-        processor
-    )
-    print("Updating database with embeddings")
-    replace_img_with_embedding(recipes, recipe_img_embeddings)
-    replace_img_with_embedding(steps, step_img_embeddings)
-    populate_image_table(recipes, steps, conn)
-    print("Done")
-    conn.close()
+            recipes, steps = query_image_urls(conn)
+            print("Creating embeddings for mainImage urls in Recipe table")
+            print(recipes)
+            recipe_img_embeddings = create_embedding(
+                [recipe[2] for recipe in recipes],
+                model, 
+                processor
+            )
+            print("Creating embeddings for imageLocation urls in Step table")
+            step_img_embeddings = create_embedding(
+                [step[2] for step in steps],
+                model,
+                processor
+            )
+            print("Updating database with embeddings")
+            replace_img_with_embedding(recipes, recipe_img_embeddings)
+            replace_img_with_embedding(steps, step_img_embeddings)
+            populate_image_table(recipes, steps, conn)
+            print("Done")
+        except psycopg2.errors.UniqueViolation:
+            print(f"Data appears to be pre-populated.")
+            conn.rollback()
+        except Exception as e:
+            print(f"Error: {e}")
+            conn.rollback()
 
 
 if __name__ == "__main__":
